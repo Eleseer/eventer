@@ -1,0 +1,22 @@
+{
+  "name": "@aliser/eventer",
+  "version": "0.0.1",
+  "description": "A simple event system.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "",
+    "publish": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "events",
+    "event system"
+  ],
+  "author": "@aliser",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^28.1.0",
+    "typescript": "^4.7.2"
+  }
+}
