@@ -1,5 +1,6 @@
 import { Eventer } from '../src/index';
 
+
 describe('firing an event with a listener', () => {
 	describe('listener is called', () => {
 		test('regular listener is called multiple times', () => {
