@@ -1,4 +1,5 @@
 
+type Not<T, V> = V extends T ? never : V;
 type EmptyObject = Record<string, never>;
 
 type DataParam = {
@@ -26,7 +27,11 @@ type Events = {
 	[key: string]: DataParam
 }
 
-export default class <T extends Events> {
+type KeysMatching<T, V> = { 
+	[key in keyof T]-?: T[key] extends V ? key : never 
+}[keyof T];
+
+export class Eventer <T extends Not<EmptyObject, Events>> {
 	#events: {
 		[key in keyof T]?: ListenerEntry<T[key]>[]
 	} = {};
@@ -35,31 +40,17 @@ export default class <T extends Events> {
 	 * Adds `listener` to event `eventName`.
 	 * @param eventName name of the event to listen to.
 	 * @param listener listener function.
+	 * @param once should listener be called just once?
 	 * @returns this.
 	 */
-	on<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>) {
+	addEventListener<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>, {
+		once = false
+	} = {}) {
 		const eventNode = this.#getEventNode(eventName);
 
 		eventNode.push({
 			listener,
-			once: false
-		});
-
-		return this;
-	}
-
-	/**
-	 * Adds `listener` to event `eventName` that runs only **once**.
-	 * @param eventName name of the event to listen to.
-	 * @param listener listener function.
-	 * @returns this.
-	 */
-	once<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>) {
-		const eventNode = this.#getEventNode(eventName);
-
-		eventNode.push({
-			listener,
-			once: true
+			once: once
 		});
 
 		return this;
@@ -71,14 +62,15 @@ export default class <T extends Events> {
 	 * @param listener listener function.
 	 * @returns this.
 	 */
-	removeListener<key extends keyof T, data extends T[key]>(eventName: key, listener: ListenerCb<data>) {
-		if(this.#eventNodeExists(eventName))
-			return;
+	removeEventListener<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>) {
+		// shouldn't create new node on listener entry removal
+		if(!this.#eventNodeExists(eventName))
+			return this;
 		
 		const eventNode = this.#getEventNode(eventName);
 		const listenerEntryIndex = eventNode.findIndex(listenerEntry => listenerEntry.listener === listener);
 		if(listenerEntryIndex === -1)
-			return;
+			return this;
 
 		eventNode.splice(listenerEntryIndex, 1);
 		
@@ -89,13 +81,13 @@ export default class <T extends Events> {
 	 * Dispatches event `eventName` **without** any data. 
 	 * @param eventName name of the event.
 	 */
-	fire<key extends keyof T & (T[key] extends EmptyObject ? string : never)>(eventName: key): this;
+	dispatchEvent<key extends KeysMatching<T, EmptyObject>>(eventName: key): this;
 	/**
-	 * Dispatches event `eventName` **with** `data`. 
-	 * @param eventName name of the event.
-	 */
-	fire<key extends keyof T, data extends (T[key] extends EmptyObject ? never : T[key])>(eventName: key, eventData: data): this;
-	fire<key extends keyof T>(eventName: key, eventData: T[key] = {} as T[key]) {
+	* Dispatches event `eventName` **with** `data`. 
+	* @param eventName name of the event.
+	*/
+	dispatchEvent<key extends keyof T, data extends Not<EmptyObject, T[key]>>(eventName: key, eventData: data): this;
+	dispatchEvent<key extends keyof T>(eventName: key, eventData: T[key] = {} as T[key]) {
 		if(!this.#eventNodeExists(eventName))
 			return;
 
@@ -106,7 +98,7 @@ export default class <T extends Events> {
 			listenerEntry.listener(eventData);
 
 			if(listenerEntry.once)
-			 itemsToRemove.push(listenerEntry);
+				itemsToRemove.push(listenerEntry);
 		}
 		for(const el of itemsToRemove) {
 			const index = eventNode.indexOf(el);
