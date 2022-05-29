@@ -1,8 +1,5 @@
 import { Eventer } from '../src/index';
 
-type Not<T, V> = V extends T ? never : V;
-type EmptyObject = Record<string, never>;
-
 describe('firing an event with a listener', () => {
 	describe('listener is called', () => {
 		test('regular listener is called multiple times', () => {
