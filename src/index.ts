@@ -125,7 +125,7 @@ export class Eventer <T extends Not<EmptyObject, Events>> {
 	}
 
 	/**
-	 * Checks if an array of listener entries — internal objects that represent a single listener, - if defined.
+	 * Checks if an array of listener entries — internal objects that represent a single listener, - is defined.
 	 * 
 	 * @param eventName name of the event.
 	 */
