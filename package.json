@@ -7,8 +7,7 @@
   "scripts": {
     "build": "tsc",
     "publish": "",
-    "test": "jest",
-		"coverage": "jest --coverage"
+    "test": "jest --coverage"
   },
   "keywords": [
     "events",
