@@ -14,29 +14,29 @@
 <li><a href="#installation">Installation</a></li>
 <li><a href="#usage">Usage</a></li>
 <li><a href="#features">Features</a><ul>
-<li><a href="#features-basic">Add listeners, fire events, remove listeners</a></li>
-<li><a href="#features-firing-just-once">Firing events just once</a></li>
-<li><a href="#features-fire-without-listeners">Firing events without listeners</a></li>
-<li><a href="#features-remove-not-added-listeners">Removing never-added listeners</a></li>
+<li><a href="#basics">Basics</a></li>
+<li><a href="#firing-events-just-once">Firing events just once</a></li>
+<li><a href="#firing-events-without-listeners">Firing events without listeners</a></li>
+<li><a href="#removing-never-added-listeners">Removing never-added listeners</a></li>
 </ul>
 </li>
-<li><a href="#features-type-checking">Type checking</a><ul>
-<li><a href="#features-type-checking-adding-listeners">Adding listeners</a></li>
-<li><a href="#features-type-checking-removing-listeners">Removing listeners</a></li>
-<li><a href="#features-type-checking-firing-events">Firing events</a></li>
+<li><a href="#type-checking">Type-checking</a><ul>
+<li><a href="#adding-listeners">Adding listeners</a></li>
+<li><a href="#removing-listeners">Removing listeners</a></li>
+<li><a href="#firing-events">Firing events</a></li>
 </ul>
 </li>
 </ul>
 
-<a href="#-installation" id="-installation" style="color: inherit; text-decoration: none;">
-  <h2><a name="installation"></a> Installation</h2>
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
 </a>
 <p>Using NPM</p>
 <pre><code class="language-bash"><span class="hl-0">npm i @aliser/eventer</span>
 </code></pre>
 
-<a href="#-usage" id="-usage" style="color: inherit; text-decoration: none;">
-  <h2><a name="usage"></a> Usage</h2>
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
 </a>
 <p><strong>Setup</strong></p>
 <pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> </span><span class="hl-2">Eventer</span><span class="hl-0"> </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&#39;@aliser/eventer&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">/**</span><br/><span class="hl-4">A type describing your events, where:</span><br/><span class="hl-4">* - propertyName — an event name, a string.</span><br/><span class="hl-4">* - propertyValue — an object with data expected in by the event or an empty object, if event has no data. </span><br/><span class="hl-4">*/</span><span class="hl-0"> </span><br/><span class="hl-5">type</span><span class="hl-0"> </span><span class="hl-6">Events</span><span class="hl-0"> = {</span><br/><span class="hl-0">    </span><span class="hl-2">hello</span><span class="hl-0">: { </span><span class="hl-4">// event with data</span><br/><span class="hl-0">        </span><span class="hl-2">msg</span><span class="hl-0">: </span><span class="hl-6">string</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">    </span><span class="hl-2">bye</span><span class="hl-0">: { } </span><span class="hl-4">// event without data, — is dataless</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">/*</span><br/><span class="hl-4">* Create a listener that accepts data with the data type specified. If event has no data, don&#39;t specify anything.</span><br/><span class="hl-4">*/</span><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-7">helloListener</span><span class="hl-0"> = ({ </span><span class="hl-2">msg</span><span class="hl-0"> }: </span><span class="hl-6">Events</span><span class="hl-0">[</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">]) </span><span class="hl-5">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-7">log</span><span class="hl-0">(</span><span class="hl-2">msg</span><span class="hl-0">);</span><br/><span class="hl-0">}</span><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-7">byeListener</span><span class="hl-0"> = () </span><span class="hl-5">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-7">log</span><span class="hl-0">(</span><span class="hl-3">&#39;Bye, world!&#39;</span><span class="hl-0">);</span><br/><span class="hl-0">}</span>
@@ -53,32 +53,32 @@
 <pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-8">eventer</span><span class="hl-0"> = </span><span class="hl-5">new</span><span class="hl-0"> </span><span class="hl-7">Eventer</span><span class="hl-0">&lt;</span><span class="hl-6">Events</span><span class="hl-0">&gt;();</span><br/><br/><span class="hl-4">// add &lt;helloListener&gt; listener to &lt;hello&gt; event</span><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">addEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span><br/><span class="hl-4">// fire &lt;hello&gt; event with some data</span><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, world!&#39;</span><span class="hl-0"> });</span><br/><span class="hl-4">// &gt; Hello, world!</span><br/><br/><span class="hl-4">// remove &lt;helloListener&gt; from &lt;hello&gt; event</span><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">removeEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span><br/><br/><span class="hl-4">// fire &lt;hello&gt; event with some data, again</span><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, world!&#39;</span><span class="hl-0"> });</span><br/><span class="hl-4">// no message is printed</span>
 </code></pre>
 
-<a href="#-features" id="-features" style="color: inherit; text-decoration: none;">
-  <h2><a name="features"></a> Features</h2>
+<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+  <h2>Features</h2>
 </a>
 <p><strong>Setup</strong></p>
 <pre><code class="language-ts"><span class="hl-1">import</span><span class="hl-0"> </span><span class="hl-2">Eventer</span><span class="hl-0"> </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&#39;@aliser/eventer&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-5">type</span><span class="hl-0"> </span><span class="hl-6">Events</span><span class="hl-0"> = {</span><br/><span class="hl-0">    </span><span class="hl-2">hello</span><span class="hl-0">: {</span><br/><span class="hl-0">        </span><span class="hl-2">msg</span><span class="hl-0">: </span><span class="hl-6">string</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">    </span><span class="hl-2">bye</span><span class="hl-0">: { }</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-8">eventer</span><span class="hl-0"> = </span><span class="hl-5">new</span><span class="hl-0"> </span><span class="hl-7">Eventer</span><span class="hl-0">&lt;</span><span class="hl-6">Events</span><span class="hl-0">&gt;();</span><br/><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-7">helloListener</span><span class="hl-0"> = ({ </span><span class="hl-2">msg</span><span class="hl-0"> }: </span><span class="hl-6">Events</span><span class="hl-0">[</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">]) </span><span class="hl-5">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-7">log</span><span class="hl-0">(</span><span class="hl-2">msg</span><span class="hl-0">);</span><br/><span class="hl-0">}</span><br/><span class="hl-5">const</span><span class="hl-0"> </span><span class="hl-7">byeListener</span><span class="hl-0"> = () </span><span class="hl-5">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">console</span><span class="hl-0">.</span><span class="hl-7">log</span><span class="hl-0">(</span><span class="hl-3">&#39;Bye, World!&#39;</span><span class="hl-0">);</span><br/><span class="hl-0">}</span>
 </code></pre>
 <hr>
 
-<a href="#-add-listeners-fire-events-remove-listeners" id="-add-listeners-fire-events-remove-listeners" style="color: inherit; text-decoration: none;">
-  <h3><a name="features-basic"></a> <strong>Add listeners, fire events, remove listeners</strong></h3>
+<a href="#basics" id="basics" style="color: inherit; text-decoration: none;">
+  <h3><strong>Basics</strong></h3>
 </a>
 <pre><code class="language-ts"><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">addEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span><br/><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, World!&#39;</span><span class="hl-0"> });</span><br/><span class="hl-4">// &gt; Hello, World!</span><br/><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">removeEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span><br/><br/><span class="hl-4">// =============</span><br/><span class="hl-4">// or use chaining!</span><br/><span class="hl-2">eventer</span><br/><span class="hl-0">    .</span><span class="hl-7">addEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">)</span><br/><span class="hl-0">    .</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, World!&#39;</span><span class="hl-0"> }) </span><span class="hl-4">// &gt; Hello, World!</span><br/><span class="hl-0">    .</span><span class="hl-7">removeEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span>
 </code></pre>
 <br>
 
 
-<a href="#-firing-events-just-once" id="-firing-events-just-once" style="color: inherit; text-decoration: none;">
-  <h3><a name="features-firing-just-once"></a> <strong>Firing events just once</strong></h3>
+<a href="#firing-events-just-once" id="firing-events-just-once" style="color: inherit; text-decoration: none;">
+  <h3><strong>Firing events just once</strong></h3>
 </a>
 <pre><code class="language-ts"><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">addEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">, { </span><span class="hl-2">once:</span><span class="hl-0"> </span><span class="hl-5">true</span><span class="hl-0"> });</span><br/><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, World!&#39;</span><span class="hl-0"> });</span><br/><span class="hl-4">// &gt; Hello, World!</span><br/><br/><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, { </span><span class="hl-2">msg:</span><span class="hl-0"> </span><span class="hl-3">&#39;Hello, World!&#39;</span><span class="hl-0"> });</span><br/><span class="hl-4">// nothing is printed, no error is thrown</span>
 </code></pre>
 <br>
 
 
-<a href="#-firing-events-without-listeners" id="-firing-events-without-listeners" style="color: inherit; text-decoration: none;">
-  <h3><a name="features-fire-without-listeners"></a> <strong>Firing events without listeners</strong></h3>
+<a href="#firing-events-without-listeners" id="firing-events-without-listeners" style="color: inherit; text-decoration: none;">
+  <h3><strong>Firing events without listeners</strong></h3>
 </a>
 <p>Doesn&#39;t throw any errors.</p>
 <pre><code class="language-ts"><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">dispatchEvent</span><span class="hl-0">(</span><span class="hl-3">&#39;bye&#39;</span><span class="hl-0">);</span><br/><span class="hl-4">// nothing is printed, no error is thrown</span>
@@ -86,8 +86,8 @@
 <br>
 
 
-<a href="#-removing-never-added-listeners" id="-removing-never-added-listeners" style="color: inherit; text-decoration: none;">
-  <h3><a name="features-remove-not-added-listeners"></a> <strong>Removing never-added listeners</strong></h3>
+<a href="#removing-never-added-listeners" id="removing-never-added-listeners" style="color: inherit; text-decoration: none;">
+  <h3><strong>Removing never-added listeners</strong></h3>
 </a>
 <p>Doesn&#39;t throw any errors.</p>
 <pre><code class="language-ts"><span class="hl-2">eventer</span><span class="hl-0">.</span><span class="hl-7">removeEventListener</span><span class="hl-0">(</span><span class="hl-3">&#39;hello&#39;</span><span class="hl-0">, </span><span class="hl-2">helloListener</span><span class="hl-0">);</span><br/><span class="hl-4">// nothing is printed, no error is thrown</span>
@@ -95,12 +95,12 @@
 <br>
 
 
-<a href="#-get-a-little-bit-of-advanced-and-often-confusing-type-checking" id="-get-a-little-bit-of-advanced-and-often-confusing-type-checking" style="color: inherit; text-decoration: none;">
-  <h3><a name="features-type-checking"></a> <strong>Get a little bit of advanced (<em>and often confusing</em>) type-checking</strong></h3>
+<a href="#type-checking" id="type-checking" style="color: inherit; text-decoration: none;">
+  <h3><strong>Type-checking</strong></h3>
 </a>
 
-<a href="#-adding-listeners" id="-adding-listeners" style="color: inherit; text-decoration: none;">
-  <h4><a name="features-type-checking-adding-listeners"></a> <strong>Adding listeners</strong></h4>
+<a href="#adding-listeners" id="adding-listeners" style="color: inherit; text-decoration: none;">
+  <h4><strong>Adding listeners</strong></h4>
 </a>
 <blockquote>
 <p>Adding a listener to an event that <strong>doesn&#39;t exist</strong>. </p>
@@ -124,8 +124,8 @@
 <br>
 
 
-<a href="#-removing-listeners" id="-removing-listeners" style="color: inherit; text-decoration: none;">
-  <h4><a name="features-type-checking-removing-listeners"></a> <strong>Removing listeners</strong></h4>
+<a href="#removing-listeners" id="removing-listeners" style="color: inherit; text-decoration: none;">
+  <h4><strong>Removing listeners</strong></h4>
 </a>
 <blockquote>
 <p>Removing a listener that <strong>expects data</strong> from an event that <strong>doesn&#39;t provide</strong> any data.</p>
@@ -142,8 +142,8 @@
 <br>
 
 
-<a href="#-firing-events" id="-firing-events" style="color: inherit; text-decoration: none;">
-  <h4><a name="features-type-checking-firing-events"></a> <strong>Firing events</strong></h4>
+<a href="#firing-events" id="firing-events" style="color: inherit; text-decoration: none;">
+  <h4><strong>Firing events</strong></h4>
 </a>
 <blockquote>
 <p>Firing an event that <strong>requires data</strong> <em>without</em> providing <strong>any data</strong>.</p>

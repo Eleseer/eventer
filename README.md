@@ -11,16 +11,16 @@ Docs are available at the [project page](https://eleseer.github.io/eventer/).
 * [Installation](#installation)
 * [Usage](#usage)
 * [Features](#features)
-  * [Add listeners, fire events, remove listeners](#features-basic)
-  * [Firing events just once](#features-firing-just-once)
-  * [Firing events without listeners](#features-fire-without-listeners)
-  * [Removing never-added listeners](#features-remove-not-added-listeners)
-* [Type checking](#features-type-checking)
-  * [Adding listeners](#features-type-checking-adding-listeners)
-  * [Removing listeners](#features-type-checking-removing-listeners)
-  * [Firing events](#features-type-checking-firing-events)
+  * [Basics](#basics)
+  * [Firing events just once](#firing-events-just-once)
+  * [Firing events without listeners](#firing-events-without-listeners)
+  * [Removing never-added listeners](#removing-never-added-listeners)
+* [Type-checking](#type-checking)
+  * [Adding listeners](#adding-listeners)
+  * [Removing listeners](#removing-listeners)
+  * [Firing events](#firing-events)
 
-## <a name="installation"></a> Installation
+##  Installation
 
 Using NPM
 
@@ -28,7 +28,7 @@ Using NPM
 npm i @aliser/eventer
 ```
 
-## <a name="usage"></a> Usage
+## Usage
 
 **Setup**
 
@@ -101,7 +101,7 @@ eventer.dispatchEvent('hello', { msg: 'Hello, world!' });
 // no message is printed
 ```
 
-## <a name="features"></a> Features
+## Features
 
 **Setup**
 
@@ -125,7 +125,7 @@ const byeListener = () => {
 }
 ```
 ---
-### <a name="features-basic"></a> **Add listeners, fire events, remove listeners**
+### **Basics**
 
 ```ts
 eventer.addEventListener('hello', helloListener);
@@ -144,7 +144,7 @@ eventer
 ```
 <br>
 
-### <a name="features-firing-just-once"></a> **Firing events just once**
+### **Firing events just once**
 ```ts
 eventer.addEventListener('hello', helloListener, { once: true });
 
@@ -156,7 +156,7 @@ eventer.dispatchEvent('hello', { msg: 'Hello, World!' });
 ```
 <br>
 
-### <a name="features-fire-without-listeners"></a> **Firing events without listeners**
+### **Firing events without listeners**
 
 Doesn't throw any errors.
 
@@ -166,7 +166,7 @@ eventer.dispatchEvent('bye');
 ```
 <br>
 
-### <a name="features-remove-not-added-listeners"></a> **Removing never-added listeners**
+### **Removing never-added listeners**
 
 Doesn't throw any errors.
 
@@ -176,8 +176,8 @@ eventer.removeEventListener('hello', helloListener);
 ```
 <br>
 
-### <a name="features-type-checking"></a> **Get a little bit of advanced (*and often confusing*) type-checking**
-#### <a name="features-type-checking-adding-listeners"></a> **Adding listeners**
+### **Type-checking**
+#### **Adding listeners**
 > Adding a listener to an event that **doesn't exist**. 
 
 ```ts
@@ -211,7 +211,7 @@ eventer.addEventListener('hello', someEventListener);
 ```
 <br>
 
-#### <a name="features-type-checking-removing-listeners"></a> **Removing listeners**
+#### **Removing listeners**
 > Removing a listener that **expects data** from an event that **doesn't provide** any data.
 ```ts
 eventer.removeEventListener('bye', helloListener);
@@ -231,7 +231,7 @@ eventer.removeEventListener('someEvent', helloListener);
 ```
 <br>
 
-#### <a name="features-type-checking-firing-events"></a> **Firing events**
+#### **Firing events**
 
 > Firing an event that **requires data** *without* providing **any data**.
 
