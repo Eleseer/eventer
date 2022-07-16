@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "release": "np",
-    "build": "tsc -p tsconfig.build.js.json & tsc -p tsconfig.build.dts.json",
+    "build": "tsc -p tsconfig.build.js.json & tsc -p tsconfig.build.dts.json & npm run docs",
     "docs": "typedoc src/index.ts",
     "test": "jest --coverage"
   },
