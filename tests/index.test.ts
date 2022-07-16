@@ -1,5 +1,4 @@
-import { Eventer } from '../src/index';
-
+import Eventer from '../src/index';
 
 describe('firing an event with a listener', () => {
 	describe('listener is called', () => {
@@ -189,6 +188,7 @@ describe('type checking', () => {
 		}
 
 		test('Eventer initialization', () => {
+			eventer	= new Eventer();
 			eventer	= new Eventer<MyEvents>();
 		});
 

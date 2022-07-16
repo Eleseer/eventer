@@ -1,135 +1,142 @@
 
-type Not<T, V> = V extends T ? never : V;
-type EmptyObject = Record<string, never>;
-
-type DataParam = {
-	[key: string]: any;
-}
+/**
+ * The event data type.
+ */
+ export type EventData = { [key: string]: any };
+/**
+ * The events object type — represents the events provided to the `Eventer` through the generics.
+ */
+export type Events<Keys extends string = string> = { [key in Keys]: EventData };
 
 /**
- * @param T event data
+ * The event listener type.
  */
-type ListenerCb<T extends DataParam> = (data: T) => void;
+export type Listener<T extends EventData> = T extends EmptyObject ? () => void : (data: T) => void;
 
 /**
- * @param T event data
+ * The event listener entry (with some metadata).
+ * 
+ * @internal
  */
-type ListenerEntry<T extends DataParam> = {
-	listener: ListenerCb<T>,
+type ListenerEntry<T extends EventData> = {
+	listener: Listener<T>,
 	once: boolean
 }
 
 /**
- * @param key event name
- * @param value event data
+ * An empty object type (can't hold values *at all*).
  */
-type Events = {
-	[key: string]: DataParam
-}
-
+ export type EmptyObject = Record<string, never>;
+/** 
+ * Gets the keys from an object type whose values are of a given type.
+ * 
+ * Lacks `[keyof T]` at the end for getting the actual keys out, but without it 
+ * the *IntelliSense* and its messages are move readable.
+ * 
+ * {@link https://stackoverflow.com/a/54520829 Source @ stackoverflow} by {@link https://stackoverflow.com/users/2887218/jcalz jcalz}.
+ * 
+ * @internal
+ * */
 type KeysMatching<T, V> = { 
 	[key in keyof T]-?: T[key] extends V ? key : never 
-}[keyof T];
+};
 
-export class Eventer <T extends Not<EmptyObject, Events>> {
-	#events: {
-		[key in keyof T]?: ListenerEntry<T[key]>[]
-	} = {};
+export default class Eventer <T extends Events> {
+    /**
+     * The event listener vault. Binds listeners with the events.
+     * 
+     * @internal
+     */
+	#listenerEntriesByEvent: {
+        [key in keyof T]?: ListenerEntry<T[key]>[]  
+    } = {};
+
+    /**
+     * **All** the listeners for a given events.
+     * 
+     * Creates an event body if it's not yet defined.
+     * 
+     * @internal
+     */
+	#getEventListenerEntries<key extends (keyof T extends any ? keyof T : never)>(event: key) {
+		let listenerEntries: ListenerEntry<T[key]>[] | undefined = this.#listenerEntriesByEvent[event];
+		if(!listenerEntries) {
+			listenerEntries = [];
+			this.#listenerEntriesByEvent[event] = listenerEntries;
+		}
+
+		return listenerEntries;
+	}
 
 	/**
-	 * Adds `listener` to event `eventName`.
-	 * @param eventName name of the event to listen to.
+	 * Adds `listener` to event `event`.
+	 * 
+	 * @param event name of the event to listen to.
 	 * @param listener listener function.
 	 * @param once should listener be called just once?
 	 * @returns this.
 	 */
-	addEventListener<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>, {
+	public addEventListener<key extends (keyof T & string)>(event: key, listener: Listener<T[key]>, {
+		/** 									 ^^^^^^^^
+		*		exposes keys to intelliSense so they'll show up as actual keys not «keyof Whatever»
+		*/ 
 		once = false
 	} = {}) {
-		const eventNode = this.#getEventNode(eventName);
+		const eventListenerEntries = this.#getEventListenerEntries(event);
 
-		eventNode.push({
+		eventListenerEntries.push({
 			listener,
-			once: once
+			once
 		});
 
 		return this;
 	}
 
 	/**
-	 * Removes `listener` from event `eventName`.
-	 * @param eventName name of the event.
+	 * Removes `listener` from event `event`.
+	 * @param event name of the event.
 	 * @param listener listener function.
 	 * @returns this.
 	 */
-	removeEventListener<key extends keyof T>(eventName: key, listener: ListenerCb<T[key]>) {
-		// shouldn't create new node on listener entry removal
-		if(!this.#eventNodeExists(eventName))
-			return this;
-		
-		const eventNode = this.#getEventNode(eventName);
-		const listenerEntryIndex = eventNode.findIndex(listenerEntry => listenerEntry.listener === listener);
-		if(listenerEntryIndex === -1)
-			return this;
+	public removeEventListener<key extends (keyof T & string)>(event: key, listener: Listener<T[key]>) {
+		/** 									    ^^^^^^^^
+		*			exposes keys to intelliSense so they'll show up as actual keys not «keyof Whatever»
+		*/ 
+		const eventListenerEntries = this.#getEventListenerEntries(event);
 
-		eventNode.splice(listenerEntryIndex, 1);
+        const eventEntryIndex = eventListenerEntries.findIndex(entry => entry.listener === listener);
+        if(eventEntryIndex === -1)
+            return this;
+
+        eventListenerEntries.splice(eventEntryIndex, 1);
 		
 		return this;
 	}
 
 	/**
-	 * Dispatches event `eventName` **without** any data. 
-	 * @param eventName name of the event.
+	 * Fires event `event` **without** any data. 
+	 * @param event name of the event.
 	 */
-	dispatchEvent<key extends KeysMatching<T, EmptyObject>>(eventName: key): this;
+	public dispatchEvent<key extends KeysMatching<T, EmptyObject>[keyof T]>(event: key): this;
 	/**
-	* Dispatches event `eventName` **with** `data`. 
-	* @param eventName name of the event.
+	* Fires event `event` **with** `data`. 
+	* @param event name of the event.
+	* @param data data to pass with the event.
 	*/
-	dispatchEvent<key extends keyof T, data extends Not<EmptyObject, T[key]>>(eventName: key, eventData: data): this;
-	dispatchEvent<key extends keyof T>(eventName: key, eventData: T[key] = {} as T[key]) {
-		if(!this.#eventNodeExists(eventName))
-			return;
+    public dispatchEvent<key extends keyof Omit<T, KeysMatching<T, EmptyObject>[keyof T]>>(event: key, data: T[key]): this;
+    public dispatchEvent<key extends keyof T>(event: key, data?: T[key]) {
+		const eventListenerEntries = this.#getEventListenerEntries(event);
+		if(!eventListenerEntries.length)
+			return this;
 
-		const eventNode = this.#getEventNode(eventName);
-		const itemsToRemove = [];
-		for(let i = 0; i < eventNode.length; i++) {
-			const listenerEntry = eventNode[i];
-			listenerEntry.listener(eventData);
+		for(let i = eventListenerEntries.length - 1; i >= 0; i--) {
+			const listenerEntry = eventListenerEntries[i];
+			listenerEntry.listener(data!);
 
 			if(listenerEntry.once)
-				itemsToRemove.push(listenerEntry);
-		}
-		for(const el of itemsToRemove) {
-			const index = eventNode.indexOf(el);
-			eventNode.splice(index, 1);
+				eventListenerEntries.splice(i, 1);
 		}
 
 		return this;
-	}
-
-	/**
-	 * Returns an array of listener entries (internal objects that represent a single listener) 
-	 * for a given event `eventName`.
-	 * 
-	 * @param eventName name of the event.
-	 * @returns an array of listener entries — internal objects that represent a single listener.
-	 */
-	#getEventNode<key extends keyof T>(eventName: key) {
-		let eventNode = this.#events[eventName];
-		if(!eventNode) {
-			eventNode = [];
-			this.#events[eventName] = eventNode;
-		}
-		return eventNode as ListenerEntry<T[key]>[];
-	}
-
-	/**
-	 * Checks if an array of listener entries — internal objects that represent a single listener, - is defined.
-	 * 
-	 * @param eventName name of the event.
-	 */
-	#eventNodeExists(eventName: keyof T) {
-		return this.#events[eventName] !== undefined;
-	}
+    }
 }
